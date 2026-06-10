@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ResumeIQ – AI Resume Analyzer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <div class="logo">
+      <span class="logo-icon">⚡</span>
+      <span class="logo-text">ResumeIQ</span>
+    </div>
+    <div class="nav-badge">AI-Powered · TF-IDF · NLP</div>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-pill">🚀 Beat the ATS. Land the interview.</div>
+    <h1>Optimize Your Resume<br><span class="gradient-text">with AI Analysis</span></h1>
+    <p class="hero-sub">Upload your resume and paste a job description. Our NLP engine scores your ATS compatibility, finds skill gaps, and gives you actionable improvements — in seconds.</p>
+  </div>
+  <div class="hero-stats">
+    <div class="hstat"><span class="hstat-n">TF-IDF</span><span class="hstat-l">Algorithm</span></div>
+    <div class="hstat-div"></div>
+    <div class="hstat"><span class="hstat-n">Cosine</span><span class="hstat-l">Similarity</span></div>
+    <div class="hstat-div"></div>
+    <div class="hstat"><span class="hstat-n">200+</span><span class="hstat-l">Tech Skills</span></div>
+  </div>
+</section>
+
+<!-- ── UPLOAD FORM ── -->
+<section class="upload-section" id="upload">
+  <div class="container">
+    <div class="upload-grid">
+
+      <!-- Resume Upload -->
+      <div class="upload-card" id="resumeDropZone">
+        <div class="upload-icon">📄</div>
+        <h3>Upload Resume</h3>
+        <p>Drag & drop your PDF resume here</p>
+        <label class="file-btn" for="resumeInput">
+          Choose PDF File
+          <input type="file" id="resumeInput" accept=".pdf" hidden>
+        </label>
+        <div class="file-info" id="resumeInfo" style="display:none">
+          <span class="file-badge">✓ <span id="resumeName"></span></span>
+        </div>
+        <p class="upload-hint">PDF format only · Max 16MB</p>
+      </div>
+
+      <!-- Job Description -->
+      <div class="upload-card jd-card">
+        <div class="upload-icon">💼</div>
+        <h3>Job Description</h3>
+        <p>Paste the full job posting below</p>
+        <textarea id="jdInput" placeholder="Paste the complete job description here — include responsibilities, requirements, and preferred qualifications for the most accurate analysis..."></textarea>
+        <div class="jd-counter"><span id="jdCount">0</span> characters</div>
+      </div>
+
+    </div>
+
+    <div class="analyze-wrap">
+      <button class="analyze-btn" id="analyzeBtn" onclick="analyzeResume()">
+        <span class="btn-icon">🔍</span>
+        <span class="btn-text">Analyze Resume</span>
+      </button>
+      <p class="analyze-note">Your files are processed locally and deleted immediately after analysis.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── LOADING OVERLAY ── -->
+<div class="loading-overlay" id="loadingOverlay" style="display:none">
+  <div class="loading-box">
+    <div class="spinner"></div>
+    <h3>Analyzing your resume…</h3>
+    <div class="loading-steps">
+      <div class="lstep" id="ls1">📄 Extracting text from PDF</div>
+      <div class="lstep" id="ls2">🧮 Computing TF-IDF vectors</div>
+      <div class="lstep" id="ls3">📐 Calculating cosine similarity</div>
+      <div class="lstep" id="ls4">🔍 Identifying skill gaps</div>
+      <div class="lstep" id="ls5">💡 Generating suggestions</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── DASHBOARD ── -->
+<section class="dashboard" id="dashboard" style="display:none">
+  <div class="container">
+    <div class="dash-header">
+      <h2>Analysis Results</h2>
+      <button class="reset-btn" onclick="resetAnalysis()">↩ Analyze Another</button>
+    </div>
+
+    <!-- Score + Stats row -->
+    <div class="top-row">
+
+      <!-- ATS Score Card -->
+      <div class="score-card">
+        <div class="score-label">ATS Match Score</div>
+        <div class="score-ring-wrap">
+          <svg class="score-ring" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="52" class="ring-bg"/>
+            <circle cx="60" cy="60" r="52" class="ring-fill" id="ringFill"/>
+          </svg>
+          <div class="score-center">
+            <span class="score-num" id="scoreNum">0</span>
+            <span class="score-denom">/100</span>
+          </div>
+        </div>
+        <div class="score-grade" id="scoreGrade">—</div>
+        <div class="score-desc" id="scoreDesc">—</div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card sc-blue">
+          <div class="sc-icon">✅</div>
+          <div class="sc-val" id="statMatched">0</div>
+          <div class="sc-label">Skills Matched</div>
+        </div>
+        <div class="stat-card sc-red">
+          <div class="sc-icon">❌</div>
+          <div class="sc-val" id="statMissing">0</div>
+          <div class="sc-label">Skills Missing</div>
+        </div>
+        <div class="stat-card sc-purple">
+          <div class="sc-icon">📋</div>
+          <div class="sc-val" id="statJDSkills">0</div>
+          <div class="sc-label">JD Skills Total</div>
+        </div>
+        <div class="stat-card sc-green">
+          <div class="sc-icon">📝</div>
+          <div class="sc-val" id="statWords">0</div>
+          <div class="sc-label">Resume Words</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Skills Section -->
+    <div class="skills-row">
+
+      <div class="skills-panel panel-green">
+        <div class="panel-head">
+          <span class="panel-icon">✅</span>
+          <h3>Matching Skills</h3>
+          <span class="panel-count" id="matchCount">0</span>
+        </div>
+        <div class="skills-tags" id="matchingSkills"></div>
+      </div>
+
+      <div class="skills-panel panel-red">
+        <div class="panel-head">
+          <span class="panel-icon">🔴</span>
+          <h3>Missing Skills</h3>
+          <span class="panel-count" id="missCount">0</span>
+        </div>
+        <div class="skills-tags" id="missingSkills"></div>
+      </div>
+
+      <div class="skills-panel panel-gray">
+        <div class="panel-head">
+          <span class="panel-icon">➕</span>
+          <h3>Additional Skills</h3>
+          <span class="panel-count" id="extraCount">0</span>
+        </div>
+        <div class="skills-tags" id="extraSkills"></div>
+        <p class="panel-note">Skills in your resume not mentioned in JD — great to have!</p>
+      </div>
+
+    </div>
+
+    <!-- Keywords Row -->
+    <div class="kw-row">
+      <div class="kw-panel">
+        <h4>🔑 Keyword Overlap <span class="kw-sub">(top shared terms)</span></h4>
+        <div class="kw-tags" id="kwOverlap"></div>
+      </div>
+      <div class="kw-panel kw-miss">
+        <h4>🔍 Keywords to Add <span class="kw-sub">(from JD, not in resume)</span></h4>
+        <div class="kw-tags" id="kwMissing"></div>
+      </div>
+    </div>
+
+    <!-- Sections Checklist -->
+    <div class="sections-panel">
+      <h3>📋 Resume Sections Detected</h3>
+      <div class="sections-grid" id="sectionsGrid"></div>
+    </div>
+
+    <!-- Suggestions -->
+    <div class="suggestions-panel">
+      <h3>💡 AI-Powered Suggestions</h3>
+      <div class="suggestions-list" id="suggestionsList"></div>
+    </div>
+
+    <!-- Score Breakdown Bar -->
+    <div class="breakdown-panel">
+      <h3>📊 Score Breakdown</h3>
+      <div class="breakdown-bars">
+        <div class="bbar-row">
+          <span class="bbar-label">Skill Coverage</span>
+          <div class="bbar-track"><div class="bbar-fill bb-blue" id="bbSkill"></div></div>
+          <span class="bbar-val" id="bbSkillVal">—</span>
+        </div>
+        <div class="bbar-row">
+          <span class="bbar-label">Keyword Match</span>
+          <div class="bbar-track"><div class="bbar-fill bb-purple" id="bbKw"></div></div>
+          <span class="bbar-val" id="bbKwVal">—</span>
+        </div>
+        <div class="bbar-row">
+          <span class="bbar-label">Overall ATS Score</span>
+          <div class="bbar-track"><div class="bbar-fill bb-green" id="bbAts"></div></div>
+          <span class="bbar-val" id="bbAtsVal">—</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── HOW IT WORKS ── -->
+<section class="how-section">
+  <div class="container">
+    <h2 class="section-title">How It Works</h2>
+    <div class="how-grid">
+      <div class="how-card">
+        <div class="how-num">01</div>
+        <div class="how-icon">📄</div>
+        <h4>PDF Extraction</h4>
+        <p>pdfplumber extracts raw text from your resume, preserving structure across all pages.</p>
+      </div>
+      <div class="how-card">
+        <div class="how-num">02</div>
+        <div class="how-icon">🧮</div>
+        <h4>TF-IDF Vectorization</h4>
+        <p>Terms are weighted by their frequency (TF) and rarity across documents (IDF), creating rich text vectors.</p>
+      </div>
+      <div class="how-card">
+        <div class="how-num">03</div>
+        <div class="how-icon">📐</div>
+        <h4>Cosine Similarity</h4>
+        <p>The angle between resume and JD vectors measures semantic alignment — the core ATS score.</p>
+      </div>
+      <div class="how-card">
+        <div class="how-num">04</div>
+        <div class="how-icon">💡</div>
+        <h4>Gap Analysis</h4>
+        <p>200+ tech skills are pattern-matched to surface exactly what's missing and what's present.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <p>Built with Flask · Python NLP · TF-IDF · Cosine Similarity · pdfplumber</p>
+</footer>
+
+<script src="/static/js/main.js"></script>
+</body>
+</html>
