@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Resume Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+  </head>
+  <body>
+    <main class="container">
+      <section class="card form-card">
+        <h1>AI Resume Analyzer</h1>
+        <p>Upload your resume and job description to calculate ATS match score.</p>
+
+        <form id="analyzer-form">
+          <label for="resume">Resume PDF</label>
+          <input id="resume" name="resume" type="file" accept="application/pdf" required />
+
+          <label for="job_description">Job Description</label>
+          <textarea
+            id="job_description"
+            name="job_description"
+            rows="8"
+            placeholder="Paste job description here..."
+          ></textarea>
+
+          <label for="job_description_file">Or Upload Job Description (.txt)</label>
+          <input id="job_description_file" name="job_description_file" type="file" accept=".txt" />
+
+          <button type="submit">Analyze Resume</button>
+        </form>
+      </section>
+
+      <section class="card results-card" id="results-card" hidden>
+        <h2>ATS Dashboard</h2>
+        <div class="score-row">
+          <div class="score-ring" id="score-ring"><span id="score-value">0</span>/100</div>
+        </div>
+
+        <div class="skills-grid">
+          <div>
+            <h3>Matching Skills</h3>
+            <div id="matching-skills" class="chips"></div>
+          </div>
+          <div>
+            <h3>Missing Skills</h3>
+            <div id="missing-skills" class="chips"></div>
+          </div>
+        </div>
+
+        <div>
+          <h3>Suggestions</h3>
+          <ul id="suggestions"></ul>
+        </div>
+      </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  </body>
+</html>
